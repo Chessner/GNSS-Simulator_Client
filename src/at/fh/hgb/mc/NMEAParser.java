@@ -113,6 +113,9 @@ public class NMEAParser implements Runnable {
                         //SNR
                         if (!dataParts[i].equals("")) {
                             mCurrentSat.mSNRdB = Double.parseDouble(dataParts[i]);
+                        } else {
+                            //no snr -> mark with Integer.MIN_VALUE
+                            mCurrentSat.mSNRdB = Integer.MIN_VALUE;
                         }
                         mReceiveInfo.mSatellites.add(mCurrentSat);
                         j = 3;
