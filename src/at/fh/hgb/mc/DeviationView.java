@@ -28,7 +28,7 @@ public class DeviationView implements PositionUpdateListener {
     public StackPane init() {
         mDevView = new StackPane();
         mDevView.setMinSize(0, 0);
-        mDevView.setStyle("-fx-background-color: green;");
+        mDevView.setStyle("-fx-background-color: lightgray;");
 
         Canvas canvas = new Canvas();
         canvas.setId(DEVVIEW_CANVAS_ID);

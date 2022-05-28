@@ -26,7 +26,7 @@ public class SatView implements PositionUpdateListener {
     public StackPane init() {
         mSatView = new StackPane();
         mSatView.setMinSize(0, 0);
-        mSatView.setStyle("-fx-background-color: blue;");
+        mSatView.setStyle("-fx-background-color: lightgray;");
 
         Canvas canvas = new Canvas();
         canvas.setId(SATVIEW_CANVAS_ID);
@@ -53,12 +53,12 @@ public class SatView implements PositionUpdateListener {
         Canvas canvas = (Canvas) mGlobalView.mScene.lookup("#" + SATVIEW_CANVAS_ID);
 
         double smallerSide = Math.min(canvas.getWidth(), canvas.getHeight());
-        double offset = smallerSide/14;
+        double offset = smallerSide / 14;
         double cWidth = canvas.getWidth() - offset * 2;
         double cHeight = canvas.getHeight() - offset * 2;
         double cCenterX = cWidth / 2 + offset;
         double cCenterY = cHeight / 2 + offset;
-        smallerSide = Math.min(cWidth,cHeight);
+        smallerSide = Math.min(cWidth, cHeight);
 
         BufferedImage image = new BufferedImage((int) (cWidth + offset * 2), (int) (cHeight + offset * 2), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = (Graphics2D) image.getGraphics();
@@ -92,7 +92,7 @@ public class SatView implements PositionUpdateListener {
             double y = r * Math.sin((satelliteInfo.mAngleToNorth - 90) * (Math.PI / 180d));
 
             g2d.drawRect((int) (cCenterX + x - 10), (int) (cCenterY + y - 10), 20, 20);*/
-            satelliteInfo.draw(g2d,cCenterX,cCenterY,hypotenuse);
+            satelliteInfo.draw(g2d, cCenterX, cCenterY, hypotenuse);
         }
 
         WritableImage writable = SwingFXUtils.toFXImage(image, null);

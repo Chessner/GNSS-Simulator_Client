@@ -374,7 +374,6 @@ public class Matrix {
         } else {
             zoomF = zoomFactorY;
         }
-        System.out.println("Zoomf: " + zoomF + ", ZoomfY: " + zoomFactorY + ", ZoomfX: " + zoomFactorX);
         Matrix scaleMatrix = Matrix.scale(zoomF);
 
         Matrix mirrorMatrix = Matrix.mirrorX();

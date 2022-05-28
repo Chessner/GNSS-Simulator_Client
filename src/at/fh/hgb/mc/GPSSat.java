@@ -21,5 +21,13 @@ public class GPSSat extends SatelliteInfo{
         _g2d.fillOval((int) (_referenceX + point.x - 10), (int) (_referenceY + point.y - 10), 20, 20);
         _g2d.setColor(Color.WHITE);
         _g2d.drawOval((int) (_referenceX + point.x - 10), (int) (_referenceY + point.y - 10), 20, 20);
+
+        int sOffset;
+        if(String.valueOf(mID).length() > 1){
+            sOffset = 6;
+        } else {
+            sOffset = 3;
+        }
+        _g2d.drawString(String.valueOf(mID),(int) (_referenceX + point.x - sOffset), (int) (_referenceY + point.y + 5));
     }
 }

@@ -32,6 +32,8 @@ public class GlobalView extends Application {
 
         mSatView = new SatView(this);
         StackPane satView = mSatView.init();
+      //  Circle circle = new Circle();
+      //  satView.getChildren().addAll(circle);
 
         mDevView = new DeviationView(this);
         StackPane devView = mDevView.init();
@@ -70,6 +72,11 @@ public class GlobalView extends Application {
         _stage.setTitle("NMEA-0183 View");
         _stage.setScene(mScene);
         _stage.show();
+
+      /*  circle.setCenterX(satView.getWidth()/2);
+        circle.setCenterY(satView.getHeight()/2);
+        circle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
+        circle.setRadius(20);*/
 
     }
 }
