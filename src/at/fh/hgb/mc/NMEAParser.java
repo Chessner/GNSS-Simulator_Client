@@ -94,6 +94,7 @@ public class NMEAParser implements Runnable {
                         //TODO:make distinction between satellite types
                         if (dataParts[0].contains("GP")) {
                             mCurrentSat = new GPSSat();
+                            mCurrentSat.mParentNMEAInfo = mReceiveInfo;
                         }
                         if (!dataParts[i].equals("")) {
                             mCurrentSat.mID = Integer.parseInt(dataParts[i]);
@@ -123,32 +124,6 @@ public class NMEAParser implements Runnable {
                 break;
         }
     }
-
-    /*LinkedList<String> lines = new LinkedList<>();
-
-    @Override
-    public void run() {
-        try {
-            String line;
-            while (true) {
-                line = mSimulator.readLine();
-                if (line == null) break;
-                lines.add(line);
-                Platform.runLater(() -> {
-                    String s = lines.getFirst();
-                    if (s != null) {
-                        lines.removeFirst();
-                        parse(s);
-                    }
-                });
-                //parse(line);
-            }
-        } catch (IOException _e) {
-            _e.printStackTrace();
-        }
-    }*/
-
-    //LinkedList<String> lines = new LinkedList<>();
 
     @Override
     public void run() {

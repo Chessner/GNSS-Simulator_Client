@@ -87,11 +87,12 @@ public class SatView implements PositionUpdateListener {
         g2d.drawOval((int) (cCenterX - ankathete), (int) (cCenterY - ankathete), (int) ankathete * 2, (int) ankathete * 2);
 
         for (SatelliteInfo satelliteInfo : _info.mSatellites) {
-            double r = Math.cos(satelliteInfo.mAngleToHorizontal * (Math.PI / 180d)) * hypotenuse;
+           /* double r = Math.cos(satelliteInfo.mAngleToHorizontal * (Math.PI / 180d)) * hypotenuse;
             double x = r * Math.cos((satelliteInfo.mAngleToNorth - 90) * (Math.PI / 180d));
             double y = r * Math.sin((satelliteInfo.mAngleToNorth - 90) * (Math.PI / 180d));
 
-            g2d.drawRect((int) (cCenterX + x - 10), (int) (cCenterY + y - 10), 20, 20);
+            g2d.drawRect((int) (cCenterX + x - 10), (int) (cCenterY + y - 10), 20, 20);*/
+            satelliteInfo.draw(g2d,cCenterX,cCenterY,hypotenuse);
         }
 
         WritableImage writable = SwingFXUtils.toFXImage(image, null);

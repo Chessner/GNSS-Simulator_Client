@@ -1,22 +1,22 @@
 package at.fh.hgb.mc;
 
+import java.awt.*;
+import java.awt.geom.Point2D;
+
 public abstract class SatelliteInfo {
     public int mID;
     public double mSNRdB;
     public double mAngleToHorizontal, mAngleToNorth;
+    protected NMEAInfo mParentNMEAInfo;
 
-   /* @Override
-    public String toString() {
-        StringBuffer b = new StringBuffer();
-        b.append("ID: ");
-        b.append(mID).append(", SNR(dB): ");
-        b.append(mSNRdB);
-        b.append(", Angle(Horiz.): ");
-        b.append(mAngleToHorizontal);
-        b.append(", Angle(North.): ");
-        b.append(mAngleToNorth);
-        return b.toString();
-    }*/
+    public Point2D.Double getCoordinates(double _radius){
+        double r = Math.cos(mAngleToHorizontal * (Math.PI / 180d)) * _radius;
+        double x = r * Math.cos((mAngleToNorth - 90) * (Math.PI / 180d));
+        double y = r * Math.sin((mAngleToNorth - 90) * (Math.PI / 180d));
+        return new Point2D.Double(x,y);
+    }
+
+    public abstract void draw(Graphics2D _g2d, double _referenceX, double _referenceY, double _radius);
 
     @Override
     public String toString() {
