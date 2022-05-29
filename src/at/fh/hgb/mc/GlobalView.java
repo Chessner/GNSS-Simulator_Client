@@ -73,6 +73,6 @@ public class GlobalView extends Application {
         _stage.show();
 
         mSatView.lateInit();
-
+        mDevView.lateInit();
     }
 }

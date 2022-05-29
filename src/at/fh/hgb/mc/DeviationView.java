@@ -9,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -44,6 +45,26 @@ public class DeviationView implements PositionUpdateListener {
         return mDevView;
     }
 
+    public void lateInit() {
+        double smallerSide = Math.min(mDevView.getWidth(), mDevView.getHeight());
+        double offset = smallerSide / 14;
+        double cWidth = mDevView.getWidth() - offset * 2;
+        double cHeight = mDevView.getHeight() - offset * 2;
+        double cCenterX = mDevView.getWidth() / 2;
+        double cCenterY = mDevView.getHeight() / 2;
+        smallerSide = Math.min(cWidth, cHeight);
+
+        //outer circle
+        Circle outerCircle = new Circle();
+        outerCircle.setId("OuterCircle");
+        outerCircle.setCenterX(cCenterX);
+        outerCircle.setCenterY(cCenterY);
+        outerCircle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
+        outerCircle.setRadius(smallerSide / 2);
+
+        mDevView.getChildren().addAll(outerCircle);
+    }
+
     public DevViewChangeListener getChangeListener() {
         if (mChangeListener == null) mChangeListener = new DevViewChangeListener();
 
@@ -59,12 +80,12 @@ public class DeviationView implements PositionUpdateListener {
 
         Canvas canvas = (Canvas) mGlobalView.mScene.lookup("#" + DEVVIEW_CANVAS_ID);
         double smallerSide = Math.min(canvas.getWidth(), canvas.getHeight());
-        double offset = smallerSide/14;
+        double offset = smallerSide / 14;
         double cWidth = canvas.getWidth() - offset * 2;
         double cHeight = canvas.getHeight() - offset * 2;
         double cCenterX = cWidth / 2 + offset;
         double cCenterY = cHeight / 2 + offset;
-        smallerSide = Math.min(cWidth,cHeight);
+        smallerSide = Math.min(cWidth, cHeight);
 
 
         //create bounding box for data
@@ -93,13 +114,10 @@ public class DeviationView implements PositionUpdateListener {
 
 
         //make background gray
-        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.setColor(new Color(216, 212, 212));
         g2d.fillRect(0, 0, (int) (cWidth + offset * 2), (int) (cHeight + offset * 2));
 
         g2d.setColor(Color.BLACK);
-
-        //draw outer ring
-        g2d.drawOval((int) (cCenterX - smallerSide / 2), (int) (cCenterY - smallerSide / 2), (int) smallerSide, (int) smallerSide);
 
         int[] xpoints = new int[transformedData.size()];
         int[] ypoints = new int[transformedData.size()];
@@ -135,8 +153,28 @@ public class DeviationView implements PositionUpdateListener {
                 ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observableValue;
                 double val = dProp.doubleValue();
                 String name = dProp.getName();
+
+                double smallerSide = Math.min(mDevView.getWidth(), mDevView.getHeight());
+                double offset = smallerSide / 14;
+                double cWidth = mDevView.getWidth() - offset * 2;
+                double cHeight = mDevView.getHeight() - offset * 2;
+                double cCenterX = mDevView.getWidth() / 2;
+                double cCenterY = mDevView.getHeight() / 2;
+                smallerSide = Math.min(cWidth, cHeight);
+
                 if (name.equalsIgnoreCase("width")) {
                     AnchorPane.setLeftAnchor(mDevView, val / 2);
+                    Circle outerCircle = (Circle) mDevView.lookup("#OuterCircle");
+                    if (outerCircle != null) {
+                        outerCircle.setCenterX(cCenterX);
+                        outerCircle.setRadius(smallerSide / 2);
+                    }
+                } else if (name.equalsIgnoreCase("height")) {
+                    Circle outerCircle = (Circle) mDevView.lookup("#OuterCircle");
+                    if (outerCircle != null) {
+                        outerCircle.setCenterY(cCenterY);
+                        outerCircle.setRadius(smallerSide / 2);
+                    }
                 }
             }
         }
