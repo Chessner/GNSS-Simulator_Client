@@ -44,7 +44,9 @@ public class GlobalView extends Application {
 
         mTimeView = new TimeView(this);
         Label timeView = mTimeView.init();
-        root.setTop(timeView);
+        StackPane stackPane = new StackPane();
+        stackPane.getChildren().add(timeView);
+        root.setTop(stackPane);
 
         center.widthProperty().addListener(mSatView.getChangeListener());
         center.heightProperty().addListener(mSatView.getChangeListener());
