@@ -47,6 +47,7 @@ public class GlobalView extends Application {
         root.setTop(timeView);
 
         center.widthProperty().addListener(mSatView.getChangeListener());
+        center.heightProperty().addListener(mSatView.getChangeListener());
         center.widthProperty().addListener(mDevView.getChangeListener());
 
         mParser = new NMEAParser();

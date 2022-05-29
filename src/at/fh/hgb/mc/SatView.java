@@ -39,6 +39,7 @@ public class SatView implements PositionUpdateListener {
 
         //outer circle
         Circle outerCircle = new Circle();
+        outerCircle.setId("OuterCircle");
         outerCircle.setCenterX(cCenterX);
         outerCircle.setCenterY(cCenterY);
         outerCircle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
@@ -46,6 +47,7 @@ public class SatView implements PositionUpdateListener {
 
         //inner circle
         Circle innerCircle = new Circle();
+        innerCircle.setId("InnerCircle");
         innerCircle.setCenterX(cCenterX);
         innerCircle.setCenterY(cCenterY);
         innerCircle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
@@ -54,12 +56,14 @@ public class SatView implements PositionUpdateListener {
 
         //draw lines
         Line horiLine = new Line();
+        horiLine.setId("HorizontalLine");
         horiLine.setStartX(cCenterX - smallerSide / 2 - offset / 2);
         horiLine.setStartY(cCenterY);
         horiLine.setEndX(cCenterX + smallerSide / 2 + offset / 2);
         horiLine.setEndY(cCenterY);
 
         Line vertLine = new Line();
+        vertLine.setId("VerticalLine");
         vertLine.setStartX(cCenterX);
         vertLine.setStartY(cCenterY - smallerSide / 2 - offset / 2);
         vertLine.setEndX(cCenterX);
@@ -84,8 +88,11 @@ public class SatView implements PositionUpdateListener {
         double cCenterX = mSatView.getWidth() / 2;
         double cCenterY = mSatView.getHeight() / 2;
         smallerSide = Math.min(cWidth, cHeight);
+
+        mSatView.getChildren().removeIf(n -> n.getId().equals("Satellite"));
+
         for (SatelliteInfo satelliteInfo : _info.mSatellites) {
-            satelliteInfo.createShape(mSatView,cCenterX,cCenterY,smallerSide/2);
+            satelliteInfo.createShape(mSatView, cCenterX, cCenterY, smallerSide / 2);
         }
     }
 
@@ -99,8 +106,83 @@ public class SatView implements PositionUpdateListener {
                 ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observableValue;
                 double val = dProp.doubleValue();
                 String name = dProp.getName();
+
+                double smallerSide = Math.min(mSatView.getWidth(), mSatView.getHeight());
+                double offset = smallerSide / 14;
+                double cWidth = mSatView.getWidth() - offset * 2;
+                double cHeight = mSatView.getHeight() - offset * 2;
+                double cCenterX = mSatView.getWidth() / 2;
+                double cCenterY = mSatView.getHeight() / 2;
+                smallerSide = Math.min(cWidth, cHeight);
                 if (name.equalsIgnoreCase("width")) {
                     AnchorPane.setRightAnchor(mSatView, val / 2);
+
+                    Line vertLine = (Line) mSatView.lookup("#VerticalLine");
+                    if (vertLine != null) {
+                        vertLine.setStartX(cCenterX);
+                        vertLine.setEndX(cCenterX);
+                        vertLine.setStartY(cCenterY - smallerSide / 2 - offset / 2);
+                        vertLine.setEndY(cCenterY + smallerSide / 2 + offset / 2);
+                    }
+
+                    Line horiLine = (Line) mSatView.lookup("#HorizontalLine");
+                    if (horiLine != null) {
+                        horiLine.setStartY(cCenterY);
+                        horiLine.setEndY(cCenterY);
+                        horiLine.setStartX(cCenterX - smallerSide / 2 - offset / 2);
+                        horiLine.setEndX(cCenterX + smallerSide / 2 + offset / 2);
+                    }
+
+
+                    Circle outerCircle = (Circle) mSatView.lookup("#OuterCircle");
+                    if (outerCircle != null) {
+                        outerCircle.setCenterX(cCenterX);
+                        outerCircle.setRadius(smallerSide / 2);
+                    }
+
+                    //inner circle
+                    Circle innerCircle = (Circle) mSatView.lookup("#InnerCircle");
+                    if (innerCircle != null) {
+                        innerCircle.setCenterX(cCenterX);
+                        double radius = Math.cos(45 * (Math.PI / 180d)) * (smallerSide / 2);
+                        innerCircle.setRadius(radius);
+                    }
+
+
+                } else if (name.equalsIgnoreCase("height")) {
+
+                    Line vertLine = (Line) mSatView.lookup("#VerticalLine");
+                    if (vertLine != null) {
+                        vertLine.setStartX(cCenterX);
+                        vertLine.setEndX(cCenterX);
+                        vertLine.setStartY(cCenterY - smallerSide / 2 - offset / 2);
+                        vertLine.setEndY(cCenterY + smallerSide / 2 + offset / 2);
+                    }
+
+                    Line horiLine = (Line) mSatView.lookup("#HorizontalLine");
+                    if (horiLine != null) {
+                        horiLine.setStartY(cCenterY);
+                        horiLine.setEndY(cCenterY);
+                        horiLine.setStartX(cCenterX - smallerSide / 2 - offset / 2);
+                        horiLine.setEndX(cCenterX + smallerSide / 2 + offset / 2);
+                    }
+
+
+                    Circle outerCircle = (Circle) mSatView.lookup("#OuterCircle");
+                    if (outerCircle != null) {
+                        outerCircle.setCenterY(cCenterY);
+                        outerCircle.setRadius(smallerSide / 2);
+                    }
+
+                    //inner circle
+                    Circle innerCircle = (Circle) mSatView.lookup("#InnerCircle");
+                    if (innerCircle != null) {
+                        innerCircle.setCenterY(cCenterY);
+                        double radius = Math.cos(45 * (Math.PI / 180d)) * (smallerSide / 2);
+                        innerCircle.setRadius(radius);
+                    }
+
+
                 }
             }
         }
