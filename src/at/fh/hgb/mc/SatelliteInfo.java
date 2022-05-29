@@ -1,6 +1,7 @@
 package at.fh.hgb.mc;
 
-import java.awt.*;
+import javafx.scene.layout.Pane;
+
 import java.awt.geom.Point2D;
 
 public abstract class SatelliteInfo {
@@ -16,7 +17,7 @@ public abstract class SatelliteInfo {
         return new Point2D.Double(x,y);
     }
 
-    public abstract void draw(Graphics2D _g2d, double _referenceX, double _referenceY, double _radius);
+    public abstract void createShape(Pane _parent, double _referenceX, double _referenceY, double _radius);
 
     @Override
     public String toString() {

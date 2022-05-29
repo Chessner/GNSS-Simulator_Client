@@ -18,7 +18,7 @@ public class GlobalView extends Application {
     private NMEAParser mParser;
     private TimeView mTimeView;
 
-    public static void main(String[] _args) {
+    public static void main(String[] _args){
         launch(_args);
     }
 
@@ -31,9 +31,7 @@ public class GlobalView extends Application {
         root.setCenter(center);
 
         mSatView = new SatView(this);
-        StackPane satView = mSatView.init();
-      //  Circle circle = new Circle();
-      //  satView.getChildren().addAll(circle);
+        AnchorPane satView = mSatView.init();
 
         mDevView = new DeviationView(this);
         StackPane devView = mDevView.init();
@@ -73,10 +71,7 @@ public class GlobalView extends Application {
         _stage.setScene(mScene);
         _stage.show();
 
-      /*  circle.setCenterX(satView.getWidth()/2);
-        circle.setCenterY(satView.getHeight()/2);
-        circle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
-        circle.setRadius(20);*/
+        mSatView.lateInit();
 
     }
 }

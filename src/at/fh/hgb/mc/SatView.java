@@ -3,43 +3,69 @@ package at.fh.hgb.mc;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 
 public class SatView implements PositionUpdateListener {
     private SatViewChangeListener mChangeListener;
-    private StackPane mSatView;
+    private AnchorPane mSatView;
     private GlobalView mGlobalView;
-    public final String SATVIEW_CANVAS_ID = "SATVIEW_CANVAS";
 
     public SatView(GlobalView _globalView) {
         mGlobalView = _globalView;
     }
 
-    public StackPane init() {
-        mSatView = new StackPane();
+    public AnchorPane init() {
+        mSatView = new AnchorPane();
         mSatView.setMinSize(0, 0);
         mSatView.setStyle("-fx-background-color: lightgray;");
-
-        Canvas canvas = new Canvas();
-        canvas.setId(SATVIEW_CANVAS_ID);
-        canvas.widthProperty().bind(mSatView.widthProperty());
-        canvas.heightProperty().bind(mSatView.heightProperty());
-
-        mSatView.getChildren().addAll(canvas);
 
         AnchorPane.setLeftAnchor(mSatView, 0d);
         AnchorPane.setBottomAnchor(mSatView, 0d);
         AnchorPane.setTopAnchor(mSatView, 0d);
 
         return mSatView;
+    }
+
+    public void lateInit() {
+        double smallerSide = Math.min(mSatView.getWidth(), mSatView.getHeight());
+        double offset = smallerSide / 14;
+        double cWidth = mSatView.getWidth() - offset * 2;
+        double cHeight = mSatView.getHeight() - offset * 2;
+        double cCenterX = mSatView.getWidth() / 2;
+        double cCenterY = mSatView.getHeight() / 2;
+        smallerSide = Math.min(cWidth, cHeight);
+
+        //outer circle
+        Circle outerCircle = new Circle();
+        outerCircle.setCenterX(cCenterX);
+        outerCircle.setCenterY(cCenterY);
+        outerCircle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
+        outerCircle.setRadius(smallerSide / 2);
+
+        //inner circle
+        Circle innerCircle = new Circle();
+        innerCircle.setCenterX(cCenterX);
+        innerCircle.setCenterY(cCenterY);
+        innerCircle.setStyle("-fx-fill: #ffffff00; -fx-stroke: black");
+        double radius = Math.cos(45 * (Math.PI / 180d)) * (smallerSide / 2);
+        innerCircle.setRadius(radius);
+
+        //draw lines
+        Line horiLine = new Line();
+        horiLine.setStartX(cCenterX - smallerSide / 2 - offset / 2);
+        horiLine.setStartY(cCenterY);
+        horiLine.setEndX(cCenterX + smallerSide / 2 + offset / 2);
+        horiLine.setEndY(cCenterY);
+
+        Line vertLine = new Line();
+        vertLine.setStartX(cCenterX);
+        vertLine.setStartY(cCenterY - smallerSide / 2 - offset / 2);
+        vertLine.setEndX(cCenterX);
+        vertLine.setEndY(cCenterY + smallerSide / 2 + offset / 2);
+
+        mSatView.getChildren().addAll(outerCircle, innerCircle, horiLine, vertLine);
     }
 
     public SatViewChangeListener getChangeListener() {
@@ -50,55 +76,17 @@ public class SatView implements PositionUpdateListener {
 
     @Override
     public void update(NMEAInfo _info) {
-        Canvas canvas = (Canvas) mGlobalView.mScene.lookup("#" + SATVIEW_CANVAS_ID);
 
-        double smallerSide = Math.min(canvas.getWidth(), canvas.getHeight());
+        double smallerSide = Math.min(mSatView.getWidth(), mSatView.getHeight());
         double offset = smallerSide / 14;
-        double cWidth = canvas.getWidth() - offset * 2;
-        double cHeight = canvas.getHeight() - offset * 2;
-        double cCenterX = cWidth / 2 + offset;
-        double cCenterY = cHeight / 2 + offset;
+        double cWidth = mSatView.getWidth() - offset * 2;
+        double cHeight = mSatView.getHeight() - offset * 2;
+        double cCenterX = mSatView.getWidth() / 2;
+        double cCenterY = mSatView.getHeight() / 2;
         smallerSide = Math.min(cWidth, cHeight);
-
-        BufferedImage image = new BufferedImage((int) (cWidth + offset * 2), (int) (cHeight + offset * 2), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = (Graphics2D) image.getGraphics();
-
-        //make background gray
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.fillRect(0, 0, (int) (cWidth + offset * 2), (int) (cHeight + offset * 2));
-
-        g2d.setColor(Color.black);
-
-        //draw lines
-        g2d.drawLine((int) (cCenterX - smallerSide / 2 - offset / 2), (int) cCenterY, (int) (cCenterX + smallerSide / 2 + offset / 2), (int) cCenterY);
-        g2d.drawLine((int) cCenterX, (int) (cCenterY - smallerSide / 2 - offset / 2), (int) cCenterX, (int) (cCenterY + smallerSide / 2 + offset / 2));
-
-        //calc outer ring
-        double hypotenuse = smallerSide / 2;
-        double ankathete = Math.cos(0) * hypotenuse;
-
-        //draw outer ring
-        g2d.drawOval((int) (cCenterX - ankathete), (int) (cCenterY - ankathete), (int) ankathete * 2, (int) ankathete * 2);
-
-        //calc inner ring
-        ankathete = Math.cos(45 * (Math.PI / 180d)) * hypotenuse;
-
-        //draw inner ring
-        g2d.drawOval((int) (cCenterX - ankathete), (int) (cCenterY - ankathete), (int) ankathete * 2, (int) ankathete * 2);
-
         for (SatelliteInfo satelliteInfo : _info.mSatellites) {
-           /* double r = Math.cos(satelliteInfo.mAngleToHorizontal * (Math.PI / 180d)) * hypotenuse;
-            double x = r * Math.cos((satelliteInfo.mAngleToNorth - 90) * (Math.PI / 180d));
-            double y = r * Math.sin((satelliteInfo.mAngleToNorth - 90) * (Math.PI / 180d));
-
-            g2d.drawRect((int) (cCenterX + x - 10), (int) (cCenterY + y - 10), 20, 20);*/
-            satelliteInfo.draw(g2d, cCenterX, cCenterY, hypotenuse);
+            satelliteInfo.createShape(mSatView,cCenterX,cCenterY,smallerSide/2);
         }
-
-        WritableImage writable = SwingFXUtils.toFXImage(image, null);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        gc.drawImage(writable, 0, 0);
     }
 
     public class SatViewChangeListener implements ChangeListener<Number> {
