@@ -18,7 +18,7 @@ public class GlobalView extends Application {
     private NMEAParser mParser;
     private TimeView mTimeView;
 
-    public static void main(String[] _args){
+    public static void main(String[] _args) {
         launch(_args);
     }
 
@@ -45,6 +45,7 @@ public class GlobalView extends Application {
         mTimeView = new TimeView(this);
         Label timeView = mTimeView.init();
         StackPane stackPane = new StackPane();
+        stackPane.setStyle("-fx-background-color: #" + Integer.toHexString(189) + Integer.toHexString(182) + Integer.toHexString(106) + "ff");
         stackPane.getChildren().add(timeView);
         root.setTop(stackPane);
 

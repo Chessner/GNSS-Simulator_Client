@@ -12,6 +12,7 @@ public class TimeView implements PositionUpdateListener {
 
     public Label init() {
         Label time = new Label("00:00:00");
+        time.setStyle("-fx-font-size: 24; -fx-text-fill: black;");
         time.setId(TIME_ID);
         return time;
     }
