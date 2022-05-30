@@ -13,7 +13,7 @@ public class NMEAParser implements Runnable {
 
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-1--Hgb-Statisch-nur-GPS.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
@@ -33,7 +33,9 @@ public class NMEAParser implements Runnable {
 
                 String time = dataParts[1];
                 if (!time.equals("")) {
-                    mReceiveInfo.mTime = Double.parseDouble(time);
+                    mReceiveInfo.mTime = time;
+                } else{
+                    mReceiveInfo.mTime = "0.0";
                 }
 
                 String lat = dataParts[2];
@@ -68,6 +70,8 @@ public class NMEAParser implements Runnable {
             }
             break;
             case "GSA": {
+                if (mReceiveInfo == null) return;
+
                 for (int i = 3; i < 15; i++) {
                     if (dataParts[i].equals("")) break;
 
@@ -87,15 +91,25 @@ public class NMEAParser implements Runnable {
             }
             break;
             case "GSV": {
+                if (mReceiveInfo == null) return;
 
                 for (int i = 4, j = 4; i < dataParts.length - 1; j++, i++) {
                     if (j % 4 == 0) {
                         //id
-                        //TODO:make distinction between satellite types
                         if (dataParts[0].contains("GP")) {
                             mCurrentSat = new GPSSat();
-                            mCurrentSat.mParentNMEAInfo = mReceiveInfo;
+                        } else if (dataParts[0].contains("GL")) {
+                            mCurrentSat = new GLONASSSat();
+                        } else if (dataParts[0].contains("GA")) {
+                            mCurrentSat = new GalileoSat();
+                        } else if (dataParts[0].contains("BD")) {
+                            mCurrentSat = new BeidouSat();
+                        } else {
+                            //System.out.println("Satellite of type: " + dataParts[0].substring(1,3) + " cannot be processed by this program!");
+                            return;
                         }
+                        mCurrentSat.mParentNMEAInfo = mReceiveInfo;
+
                         if (!dataParts[i].equals("")) {
                             mCurrentSat.mID = Integer.parseInt(dataParts[i]);
                         }

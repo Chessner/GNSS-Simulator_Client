@@ -20,9 +20,12 @@ public class TimeView implements PositionUpdateListener {
     @Override
     public void update(NMEAInfo _info) {
         Label time = (Label) mGlobalView.mScene.lookup("#" + TIME_ID);
-        String infoTime = Double.toString(_info.mTime);
 
-        String displayTime = infoTime.substring(0,2) + ":" + infoTime.substring(2,4) + ":" + infoTime.substring(4,6);
+        if (_info.mTime == null) return;
+
+        if(_info.mTime.split("\\.")[0].length() < 6) return;
+
+        String displayTime = _info.mTime.substring(0,2) + ":" + _info.mTime.substring(2,4) + ":" + _info.mTime.substring(4,6);
         time.setText(displayTime);
     }
 }

@@ -7,7 +7,7 @@ import javafx.scene.text.Text;
 
 import java.awt.geom.Point2D;
 
-public class GLONASSSAT extends SatelliteInfo{
+public class GLONASSSat extends SatelliteInfo{
     @Override
     public void createShape(Pane _parent, double _referenceX, double _referenceY, double _radius) {
         Point2D.Double point = getCoordinates(_radius);
@@ -15,7 +15,7 @@ public class GLONASSSAT extends SatelliteInfo{
         circle.setId("Satellite");
         StringBuilder circleStyle = new StringBuilder();
 
-        if (mSNRdB == Integer.MIN_VALUE) {
+        /*if (mSNRdB == Integer.MIN_VALUE) {
             //no snr value exists (marked with Integer.MIN_VALUE)
             circleStyle.append("-fx-fill: red; ");
         } else if (mParentNMEAInfo.mIDsSatellitesUsed.contains(mID)) {
@@ -26,8 +26,8 @@ public class GLONASSSAT extends SatelliteInfo{
             circleStyle.append("-fx-fill: #0000");
             circleStyle.append(Integer.toHexString((int) Math.max(255, Math.min(0, mSNRdB))));
             circleStyle.append("ff; ");
-        }
-        circleStyle.append("-fx-stroke: white");
+        }*/
+        circleStyle.append("-fx-fill: pink; -fx-stroke: white");
 
         circle.setRadius(10);
         circle.setCenterX(_referenceX + point.x);

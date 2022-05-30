@@ -5,7 +5,8 @@ import java.util.ArrayList;
 public class NMEAInfo {
     public ArrayList<SatelliteInfo> mSatellites = new ArrayList<>();
     public ArrayList<Integer> mIDsSatellitesUsed = new ArrayList<>();
-    public double mLongitude, mLatitude, mPDOP, mHDOP, mVDOP, mQuality, mHeight, mTime;
+    public double mLongitude, mLatitude, mPDOP, mHDOP, mVDOP, mQuality, mHeight;
+    public String mTime;
 
     @Override
     public String toString() {

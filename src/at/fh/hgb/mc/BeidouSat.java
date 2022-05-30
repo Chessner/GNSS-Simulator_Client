@@ -27,7 +27,7 @@ public class BeidouSat extends SatelliteInfo{
             circleStyle.append(Integer.toHexString((int) Math.max(255, Math.min(0, mSNRdB))));
             circleStyle.append("ff; ");
         }
-        circleStyle.append("-fx-stroke: white");
+        circleStyle.append("-fx-fill: black; -fx-stroke: white");
 
         circle.setRadius(10);
         circle.setCenterX(_referenceX + point.x);
