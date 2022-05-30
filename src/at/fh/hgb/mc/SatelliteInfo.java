@@ -6,8 +6,8 @@ import java.awt.geom.Point2D;
 
 public abstract class SatelliteInfo {
     public int mID;
-    public double mSNRdB;
-    public double mAngleToHorizontal, mAngleToNorth;
+    public int mSNRdB;
+    public int mAngleToHorizontal, mAngleToNorth;
     protected NMEAInfo mParentNMEAInfo;
 
     public Point2D.Double getCoordinates(double _radius){

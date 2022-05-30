@@ -76,7 +76,7 @@ public class DeviationView implements PositionUpdateListener {
         if (_info.mLatitude == 0d && _info.mLongitude == 0d) return;
 
 
-        Point point = new Point((int) (_info.mLongitude * 10000000), (int) (_info.mLatitude * 10000000));
+        Point point = new Point((int) (_info.mLongitude * 1000000), (int) (_info.mLatitude * 10000000));
 
         Canvas canvas = (Canvas) mGlobalView.mScene.lookup("#" + DEVVIEW_CANVAS_ID);
         double smallerSide = Math.min(canvas.getWidth(), canvas.getHeight());

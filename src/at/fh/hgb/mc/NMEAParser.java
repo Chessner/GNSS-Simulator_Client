@@ -13,11 +13,12 @@ public class NMEAParser implements Runnable {
 
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-4--Fehlerhaft.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
     }
+
 
     public void parse(String _data) {
         String[] dataParts = _data.split(",|\\*");
@@ -25,51 +26,100 @@ public class NMEAParser implements Runnable {
 
         switch (type) {
             case "GGA": {
-                mDisplayInfo = mReceiveInfo;
+                if (dataParts.length < 16) return; //14 data fields + sentence type + checksum
 
-                if (mDisplayInfo != null) updatePositionUpdateListeners();
+                if (mReceiveInfo != null) mDisplayInfo = mReceiveInfo;
+                updatePositionUpdateListeners();
 
                 mReceiveInfo = new NMEAInfo();
 
                 String time = dataParts[1];
-                if (!time.equals("")) {
-                    mReceiveInfo.mTime = time;
-                } else{
-                    mReceiveInfo.mTime = "0.0";
+                double thisTime = 0;
+                if (time.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                    thisTime = Double.parseDouble(time);
                 }
 
                 String lat = dataParts[2];
-                if (!lat.equals("")) {
+                double thisLatitude = (double) 0;
+                if (lat.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
                     String latDegree = lat.substring(0, 2);
                     String latMinutes = lat.substring(2);
                     double latDegDouble = Double.parseDouble(latDegree);
                     double latMinDouble = Double.parseDouble(latMinutes);
-
-                    mReceiveInfo.mLatitude = latDegDouble + latMinDouble / 60;
+                    thisLatitude = Math.min(latDegDouble + latMinDouble / 60, 90.0d);
                 }
 
                 String lon = dataParts[4];
-                if (!lon.equals("")) {
+                double thisLongitude = (double) 0;
+                if (lon.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
                     String longDegree = lon.substring(0, 3);
                     String longMinutes = lon.substring(3);
                     double longDegDouble = Double.parseDouble(longDegree);
                     double longMinDouble = Double.parseDouble(longMinutes);
 
-                    mReceiveInfo.mLongitude = longDegDouble + longMinDouble / 60;
+                    thisLongitude = Math.min(longDegDouble + longMinDouble / 60, 360.0d);
                 }
 
                 String qual = dataParts[6];
-                if (!qual.equals("")) {
-                    mReceiveInfo.mQuality = Integer.parseInt(qual);
+                int thisQual = 0;
+                if (qual.matches("[0-2]")) {
+                    thisQual = Integer.parseInt(qual);
                 }
+                String sats = dataParts[6];
+                int thisSats = 0;
+                if (qual.matches("[0-9][0-9]*")) {
+                    thisSats = Integer.parseInt(sats);
+                }
+
+
                 String high = dataParts[9];
-                if (!high.equals("")) {
-                    mReceiveInfo.mHeight = Double.parseDouble(high);
+                double thisHigh = 0;
+                if (high.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                    thisHigh = Double.parseDouble(high);
+                }
+
+                //Check checksum
+                if (dataParts[dataParts.length - 1].matches("[0-9,A-F][0-9,A-F]")) {
+         /*           byte checksum = 0;
+                    checksum ^= (byte) thisTime;
+                    checksum ^= (byte) thisLatitude;
+                    int nInt = 'N';
+                    checksum ^= (byte) nInt;
+                    checksum ^= (byte) thisLongitude;
+                    int eInt = 'E';
+                    checksum ^= (byte) eInt;
+                    checksum ^= (byte) thisQual;
+                    checksum ^= (byte) thisSats;
+                    String s = ";";
+                    char[] sA = s.toCharArray();
+
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 1; i < dataParts.length - 1; i++) {
+                        stringBuilder.append(dataParts[i]).append(",");
+                    }
+                    String checkString = stringBuilder.toString();
+                    char[] cArr = checkString.toCharArray();
+                    int checkSum = 0;
+                    for(char c: cArr){
+                        checkSum ^= c;
+                    }*/
+
+
+                    mReceiveInfo.mTime = time;
+                    mReceiveInfo.mLongitude = thisLongitude;
+                    mReceiveInfo.mLatitude = thisLatitude;
+                    mReceiveInfo.mQuality = thisQual;
+                    mReceiveInfo.mHeight = thisHigh;
+                } else {
+                    mReceiveInfo = null;
+                    return;
                 }
 
             }
             break;
             case "GSA": {
+                if (dataParts.length < 19) return; //17 data fields + sentence type + checksum
+
                 if (mReceiveInfo == null) return;
 
                 for (int i = 3; i < 15; i++) {
@@ -79,13 +129,13 @@ public class NMEAParser implements Runnable {
                     mReceiveInfo.mIDsSatellitesUsed.add(id);
                 }
 
-                if (!dataParts[15].equals("")) {
+                if (dataParts[15].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
                     mReceiveInfo.mPDOP = Double.parseDouble(dataParts[15]);
                 }
-                if (!dataParts[16].equals("")) {
+                if (dataParts[16].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
                     mReceiveInfo.mHDOP = Double.parseDouble(dataParts[16]);
                 }
-                if (!dataParts[17].equals("")) {
+                if (dataParts[17].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
                     mReceiveInfo.mVDOP = Double.parseDouble(dataParts[17]);
                 }
             }
@@ -110,23 +160,23 @@ public class NMEAParser implements Runnable {
                         }
                         mCurrentSat.mParentNMEAInfo = mReceiveInfo;
 
-                        if (!dataParts[i].equals("")) {
+                        if (dataParts[i].matches("[0-9][0-9]*")) {
                             mCurrentSat.mID = Integer.parseInt(dataParts[i]);
                         }
                     } else if (j % 5 == 0) {
                         //mAngleToHorizontal
-                        if (!dataParts[i].equals("")) {
-                            mCurrentSat.mAngleToHorizontal = Double.parseDouble(dataParts[i]);
+                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                            mCurrentSat.mAngleToHorizontal = Integer.parseInt(dataParts[i]);
                         }
                     } else if (j % 6 == 0) {
                         //mAngleToNorth
-                        if (!dataParts[i].equals("")) {
-                            mCurrentSat.mAngleToNorth = Double.parseDouble(dataParts[i]);
+                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                            mCurrentSat.mAngleToNorth = Integer.parseInt(dataParts[i]);
                         }
                     } else {
                         //SNR
-                        if (!dataParts[i].equals("")) {
-                            mCurrentSat.mSNRdB = Double.parseDouble(dataParts[i]);
+                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                            mCurrentSat.mSNRdB = Integer.parseInt(dataParts[i]);
                         } else {
                             //no snr -> mark with Integer.MIN_VALUE
                             mCurrentSat.mSNRdB = Integer.MIN_VALUE;
@@ -150,7 +200,14 @@ public class NMEAParser implements Runnable {
                 line = mSimulator.readLine();
                 if (line == null) break;
 
-                parse(line);
+                String[] d = line.split("\\$");
+                if (d.length > 2) {
+                    for (int i = 1; i < d.length; i++) {
+                        parse("$" + d[i]);
+                    }
+                } else {
+                    parse(line);
+                }
 
             }
         } catch (IOException _e) {

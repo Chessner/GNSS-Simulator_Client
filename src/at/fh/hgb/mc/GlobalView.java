@@ -60,7 +60,8 @@ public class GlobalView extends Application {
         mParser.addPositionUpdateListener(mTimeView);
 
         Thread thread = new Thread(mParser);
-        thread.start();
+        //thread.start();
+        mParser.run();
         _stage.setOnCloseRequest(_event -> {
                     try {
                         thread.join(1);
