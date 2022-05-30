@@ -13,10 +13,55 @@ public class NMEAParser implements Runnable {
 
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-4--Fehlerhaft.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
+    }
+
+    // Method
+    // To convert hexadecimal to decimal
+    static int hexadecimalToDecimal(String hexVal) {
+        // Storing the length of the
+        int len = hexVal.length();
+
+        // Initializing base value to 1, i.e 16^0
+        int base = 1;
+
+        // Initially declaring and initializing
+        // decimal value to zero
+        int dec_val = 0;
+
+        // Extracting characters as
+        // digits from last character
+        for (int i = len - 1; i >= 0; i--) {
+
+            if (hexVal.charAt(i) >= '0'
+                    && hexVal.charAt(i) <= '9') {
+                dec_val += (hexVal.charAt(i) - 48) * base;
+
+                // Incrementing base by power
+                base = base * 16;
+            } else if (hexVal.charAt(i) >= 'A'
+                    && hexVal.charAt(i) <= 'F') {
+                dec_val += (hexVal.charAt(i) - 55) * base;
+
+                // Incrementing base by power
+                base = base * 16;
+            }
+        }
+
+        // Returning the decimal value
+        return dec_val;
+    }
+
+    private int calcCheckSum(String _data){
+        char[] cArr = _data.toCharArray();
+        int calcCheckSum = 0;
+        for (char c : cArr) {
+            calcCheckSum ^= c;
+        }
+        return calcCheckSum;
     }
 
 
@@ -34,9 +79,8 @@ public class NMEAParser implements Runnable {
                 mReceiveInfo = new NMEAInfo();
 
                 String time = dataParts[1];
-                double thisTime = 0;
-                if (time.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
-                    thisTime = Double.parseDouble(time);
+                if (!time.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                    time = "000000.00";
                 }
 
                 String lat = dataParts[2];
@@ -65,12 +109,6 @@ public class NMEAParser implements Runnable {
                 if (qual.matches("[0-2]")) {
                     thisQual = Integer.parseInt(qual);
                 }
-                String sats = dataParts[6];
-                int thisSats = 0;
-                if (qual.matches("[0-9][0-9]*")) {
-                    thisSats = Integer.parseInt(sats);
-                }
-
 
                 String high = dataParts[9];
                 double thisHigh = 0;
@@ -78,38 +116,29 @@ public class NMEAParser implements Runnable {
                     thisHigh = Double.parseDouble(high);
                 }
 
+
                 //Check checksum
                 if (dataParts[dataParts.length - 1].matches("[0-9,A-F][0-9,A-F]")) {
-         /*           byte checksum = 0;
-                    checksum ^= (byte) thisTime;
-                    checksum ^= (byte) thisLatitude;
-                    int nInt = 'N';
-                    checksum ^= (byte) nInt;
-                    checksum ^= (byte) thisLongitude;
-                    int eInt = 'E';
-                    checksum ^= (byte) eInt;
-                    checksum ^= (byte) thisQual;
-                    checksum ^= (byte) thisSats;
-                    String s = ";";
-                    char[] sA = s.toCharArray();
 
                     StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append(dataParts[0].substring(1));
                     for (int i = 1; i < dataParts.length - 1; i++) {
-                        stringBuilder.append(dataParts[i]).append(",");
+                        stringBuilder.append(dataParts[i]);
                     }
-                    String checkString = stringBuilder.toString();
-                    char[] cArr = checkString.toCharArray();
-                    int checkSum = 0;
-                    for(char c: cArr){
-                        checkSum ^= c;
-                    }*/
+                    int calcCheckSum = calcCheckSum(stringBuilder.toString());
 
+                    int receivedCheckSum = hexadecimalToDecimal(dataParts[dataParts.length - 1]);
 
-                    mReceiveInfo.mTime = time;
-                    mReceiveInfo.mLongitude = thisLongitude;
-                    mReceiveInfo.mLatitude = thisLatitude;
-                    mReceiveInfo.mQuality = thisQual;
-                    mReceiveInfo.mHeight = thisHigh;
+                    if (receivedCheckSum == calcCheckSum) {
+                        mReceiveInfo.mTime = time;
+                        mReceiveInfo.mLongitude = thisLongitude;
+                        mReceiveInfo.mLatitude = thisLatitude;
+                        mReceiveInfo.mQuality = thisQual;
+                        mReceiveInfo.mHeight = thisHigh;
+                    } else {
+                        mReceiveInfo = null;
+                        return;
+                    }
                 } else {
                     mReceiveInfo = null;
                     return;
