@@ -3,21 +3,55 @@ package at.fh.hgb.mc;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 
+/**
+ * This class handles and presents various data in labels in a GridPane.
+ * It also is a mixture between all three parts of the MVC pattern, meaning it not only creates the view,
+ * but also handles changes to it and the data.
+ */
 public class DataView implements PositionUpdateListener{
-    private GridPane mDataView;
+    /**
+     * Unique id defining the label containing the current latitude data.
+     */
     private final String LATITUDE_ID = "LATITUDE_ID";
+    /**
+     * Unique id defining the label containing the current longitude data.
+     */
     private final String LONGITUDE_ID = "LONGITUDE_ID";
+    /**
+     * Unique id defining the label containing the current PDOP data.
+     */
     private final String PDOP_ID = "PDOP_ID";
+    /**
+     * Unique id defining the label containing the current HDOP data.
+     */
     private final String HDOP_ID = "HDOP_ID";
+    /**
+     * Unique id defining the label containing the current VDOP data.
+     */
     private final String VDOP_ID = "VDOP_ID";
+    /**
+     * Unique id defining the label containing the current altitude data.
+     */
     private final String ALTITUDE_ID = "ALTITUDE_ID";
-    private GlobalView mGlobalView;
+    /**
+     * Reference to the parent GlobalView containing this view.
+     */
+    private final GlobalView mGlobalView;
 
+    /**
+     * Constructor for a new DataView.
+     * @param _view Reference to the parent GlobalView containing this view.
+     */
     public DataView(GlobalView _view){
         mGlobalView = _view;
     }
+
+    /**
+     * Initializer for this view, setting up the different labels.
+     * @return GridPane containing all initialized javafx elements.
+     */
     public GridPane init() {
-        mDataView = new GridPane();
+        GridPane mDataView = new GridPane();
         mDataView.setHgap(5);
         mDataView.setVgap(3);
         mDataView.setStyle("-fx-background-color: cyan;");
@@ -67,7 +101,6 @@ public class DataView implements PositionUpdateListener{
         GridPane.setConstraints(pdopValue, 3, 0);
         GridPane.setConstraints(hdopValue, 3, 1);
         GridPane.setConstraints(vdopValue, 3, 2);
-
 
         return mDataView;
     }

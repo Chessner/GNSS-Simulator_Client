@@ -190,12 +190,12 @@ public class NMEAParser implements Runnable {
                     } else if (j % 5 == 0) {
                         //mAngleToHorizontal
                         if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
-                            mCurrentSat.mAngleToHorizontal = Integer.parseInt(dataParts[i]);
+                            mCurrentSat.mAngleToHorizontalLine = Integer.parseInt(dataParts[i]);
                         }
                     } else if (j % 6 == 0) {
                         //mAngleToNorth
                         if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
-                            mCurrentSat.mAngleToNorth = Integer.parseInt(dataParts[i]);
+                            mCurrentSat.mAngleToNorthLine = Integer.parseInt(dataParts[i]);
                         }
                     } else {
                         //SNR

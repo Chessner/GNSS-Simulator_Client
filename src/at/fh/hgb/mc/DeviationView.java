@@ -15,17 +15,45 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/**
+ * This class handles and presents various Points on a canvas within a circle.
+ * It also is a mixture between all three parts of the MVC pattern, meaning it not only creates the view,
+ * but also handles changes to it and the data.
+ */
 public class DeviationView implements PositionUpdateListener {
+    /**
+     * Singleton instance of DevViewChangeListener.
+     */
     private DevViewChangeListener mChangeListener;
+    /**
+     * Reference to the root StackPane of this view.
+     */
     private StackPane mDevView;
+    /**
+     * Unique id for the canvas on which the various points will be drawn.
+     */
     private final String DEVVIEW_CANVAS_ID = "DEVVIEW_CANVAS";
-    private ArrayList<Point> mData = new ArrayList<>();
+    /**
+     * List containing the received points.
+     */
+    private final ArrayList<Point> mData = new ArrayList<>();
+    /**
+     * Reference to the parent GlobalView containing this view.
+     */
     private GlobalView mGlobalView;
 
+    /**
+     * Constructor for a new DeviationView.
+     * @param _globalView Reference to the parent GlobalView containing this view.
+     */
     public DeviationView(GlobalView _globalView) {
         mGlobalView = _globalView;
     }
 
+    /**
+     * Initializer for this view, setting up the views and canvas.
+     * @return StackPane containing all initialized javafx elements.
+     */
     public StackPane init() {
         mDevView = new StackPane();
         mDevView.setMinSize(0, 0);
@@ -45,6 +73,10 @@ public class DeviationView implements PositionUpdateListener {
         return mDevView;
     }
 
+    /**
+     * Special initializer of this view called after starting the stage.
+     * It sets up the overlay of this view.
+     */
     public void lateInit() {
         double smallerSide = Math.min(mDevView.getWidth(), mDevView.getHeight());
         double offset = smallerSide / 14;
@@ -65,6 +97,11 @@ public class DeviationView implements PositionUpdateListener {
         mDevView.getChildren().addAll(outerCircle);
     }
 
+    /**
+     * Provides singleton instance of DevViewChangeListener.
+     *
+     * @return Instance of DevViewChangeListener.
+     */
     public DevViewChangeListener getChangeListener() {
         if (mChangeListener == null) mChangeListener = new DevViewChangeListener();
 
@@ -143,14 +180,24 @@ public class DeviationView implements PositionUpdateListener {
         gc.drawImage(writable, 0, 0);
     }
 
+    /**
+     * Implementation of a ChangeListener. It gets notified whenever a specific value changes.
+     */
     public class DevViewChangeListener implements ChangeListener<Number> {
         private DevViewChangeListener() {
         }
 
+        /**
+         * Method that handles the notification, that a value that this object listens to, has changed.
+         *
+         * @param _observable Observable value this object listens to.
+         * @param _oldValue   Previous value.
+         * @param _newValue   Value the variable has changed to.
+         */
         @Override
-        public void changed(ObservableValue<? extends Number> _observableValue, Number _oldValue, Number _newValue) {
-            if (_observableValue instanceof ReadOnlyDoubleProperty) {
-                ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observableValue;
+        public void changed(ObservableValue<? extends Number> _observable, Number _oldValue, Number _newValue) {
+            if (_observable instanceof ReadOnlyDoubleProperty) {
+                ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observable;
                 double val = dProp.doubleValue();
                 String name = dProp.getName();
 

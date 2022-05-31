@@ -2,14 +2,32 @@ package at.fh.hgb.mc;
 
 import javafx.scene.control.Label;
 
+/**
+ * This class handles and presents the current time.
+ * It also is a mixture between all three parts of the MVC pattern, meaning it not only creates the view,
+ * but also handles changes to it and the data.
+ */
 public class TimeView implements PositionUpdateListener {
+    /**
+     * Unique id defining the label containing the current time.
+     */
     public final String TIME_ID = "TIME_ID";
-    private GlobalView mGlobalView;
+    /**
+     * Reference to the parent GlobalView containing this view.
+     */
+    private final GlobalView mGlobalView;
 
+    /**
+     * Constructor for a new TimeView.
+     * @param _globalView Reference to the parent GlobalView containing this view.
+     */
     public TimeView(GlobalView _globalView) {
         mGlobalView = _globalView;
     }
-
+    /**
+     * Initializer for this view, setting up the javafx elements.
+     * @return Label containing the current time.
+     */
     public Label init() {
         Label time = new Label("00:00:00");
         time.setStyle("-fx-font-size: 24; -fx-text-fill: black;");

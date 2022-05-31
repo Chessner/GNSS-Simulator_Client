@@ -30,7 +30,7 @@ public class GlobalView extends Application {
         AnchorPane center = new AnchorPane();
         root.setCenter(center);
 
-        mSatView = new SatView(this);
+        mSatView = new SatView();
         AnchorPane satView = mSatView.init();
 
         mDevView = new DeviationView(this);

@@ -7,6 +7,9 @@ import javafx.scene.text.Text;
 
 import java.awt.geom.Point2D;
 
+/**
+ * This class extends SatelliteInfo to provide implementation for a GLONASS satellite.
+ */
 public class GLONASSSat extends SatelliteInfo{
     @Override
     public void createShape(Pane _parent, double _referenceX, double _referenceY, double _radius) {

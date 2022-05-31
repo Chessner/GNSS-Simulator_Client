@@ -7,15 +7,31 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 
+/**
+ * This class handles and presents various satellites.
+ * It also is a mixture between all three parts of the MVC pattern, meaning it not only creates the view,
+ * but also handles changes to it and the data.
+ */
 public class SatView implements PositionUpdateListener {
+    /**
+     * Singleton instance of SatViewChangeListener.
+     */
     private SatViewChangeListener mChangeListener;
+    /**
+     * Reference to the root AnchorPane of this view.
+     */
     private AnchorPane mSatView;
-    private GlobalView mGlobalView;
 
-    public SatView(GlobalView _globalView) {
-        mGlobalView = _globalView;
+    /**
+     * Constructs a new empty SatView.
+     */
+    public SatView() {
     }
 
+    /**
+     * Initializer for this view, setting up the javafx elements.
+     * @return AnchorPane containing all initialized javafx elements.
+     */
     public AnchorPane init() {
         mSatView = new AnchorPane();
         mSatView.setMinSize(0, 0);
@@ -28,6 +44,10 @@ public class SatView implements PositionUpdateListener {
         return mSatView;
     }
 
+    /**
+     * Special initializer of this view called after starting the stage.
+     * It sets up the overlay of this view.
+     */
     public void lateInit() {
         double smallerSide = Math.min(mSatView.getWidth(), mSatView.getHeight());
         double offset = smallerSide / 14;
@@ -72,6 +92,11 @@ public class SatView implements PositionUpdateListener {
         mSatView.getChildren().addAll(outerCircle, innerCircle, horiLine, vertLine);
     }
 
+    /**
+     * Provides singleton instance of SatViewChangeListener.
+     *
+     * @return Instance of SatViewChangeListener.
+     */
     public SatViewChangeListener getChangeListener() {
         if (mChangeListener == null) mChangeListener = new SatViewChangeListener();
 
@@ -96,14 +121,24 @@ public class SatView implements PositionUpdateListener {
         }
     }
 
+    /**
+     * Implementation of a ChangeListener. It gets notified whenever a specific value changes.
+     */
     public class SatViewChangeListener implements ChangeListener<Number> {
         private SatViewChangeListener() {
         }
 
+        /**
+         * Method that handles the notification, that a value that this object listens to, has changed.
+         *
+         * @param _observable Observable value this object listens to.
+         * @param _oldValue   Previous value.
+         * @param _newValue   Value the variable has changed to.
+         */
         @Override
-        public void changed(ObservableValue<? extends Number> _observableValue, Number _oldValue, Number _newValue) {
-            if (_observableValue instanceof ReadOnlyDoubleProperty) {
-                ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observableValue;
+        public void changed(ObservableValue<? extends Number> _observable, Number _oldValue, Number _newValue) {
+            if (_observable instanceof ReadOnlyDoubleProperty) {
+                ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observable;
                 double val = dProp.doubleValue();
                 double halfVal = val/2;
                 String name = dProp.getName();
