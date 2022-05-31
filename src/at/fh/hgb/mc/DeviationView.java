@@ -154,24 +154,35 @@ public class DeviationView implements PositionUpdateListener {
                 double val = dProp.doubleValue();
                 String name = dProp.getName();
 
-                double smallerSide = Math.min(mDevView.getWidth(), mDevView.getHeight());
-                double offset = smallerSide / 14;
-                double cWidth = mDevView.getWidth() - offset * 2;
-                double cHeight = mDevView.getHeight() - offset * 2;
-                double cCenterX = mDevView.getWidth() / 2;
-                double cCenterY = mDevView.getHeight() / 2;
-                smallerSide = Math.min(cWidth, cHeight);
 
                 if (name.equalsIgnoreCase("width")) {
+                    double smallerSide = Math.min(val, mDevView.getHeight());
+                    double offset = smallerSide / 14;
+                    double cWidth = val/2 - offset * 2;
+                    double cHeight = mDevView.getHeight() - offset * 2;
+                    double cCenterX = val / 4;
+                    double cCenterY = mDevView.getHeight() / 2;
+                    smallerSide = Math.min(cWidth, cHeight);
+
                     AnchorPane.setLeftAnchor(mDevView, val / 2);
                     Circle outerCircle = (Circle) mDevView.lookup("#OuterCircle");
                     if (outerCircle != null) {
                         outerCircle.setCenterX(cCenterX);
+                        outerCircle.setCenterY(cCenterY);
                         outerCircle.setRadius(smallerSide / 2);
                     }
                 } else if (name.equalsIgnoreCase("height")) {
+                    double smallerSide = Math.min(mDevView.getWidth(), val);
+                    double offset = smallerSide / 14;
+                    double cWidth = mDevView.getWidth() - offset * 2;
+                    double cHeight = val - offset * 2;
+                    double cCenterX = mDevView.getWidth() / 2;
+                    double cCenterY = val / 2;
+                    smallerSide = Math.min(cWidth, cHeight);
+
                     Circle outerCircle = (Circle) mDevView.lookup("#OuterCircle");
                     if (outerCircle != null) {
+                        outerCircle.setCenterX(cCenterX);
                         outerCircle.setCenterY(cCenterY);
                         outerCircle.setRadius(smallerSide / 2);
                     }

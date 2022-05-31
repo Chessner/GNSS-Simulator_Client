@@ -11,6 +11,7 @@ public class NMEAParser implements Runnable {
     private SatelliteInfo mCurrentSat;
     private final ArrayList<PositionUpdateListener> mPositionUpdateListeners = new ArrayList<>();
     private final String REGEX_FOR_DOUBLE = "[0-9]+\\.[0-9]+";
+    private final String REGEX_FOR_TIME = "[0-9]{6,6}.[0-9]{2,2}";
     private final String REGEX_FOR_INTEGER = "-?[0-9]+";
     private final String REGEX_FOR_HEX = "[0-9,A-F][0-9,A-F]";
 
@@ -67,6 +68,29 @@ public class NMEAParser implements Runnable {
 
     public void parse(String _data) {
         String[] dataParts = _data.split(",|\\*");
+
+
+        //Check checksum
+        if (dataParts[dataParts.length - 1].matches(REGEX_FOR_HEX)) {
+
+            StringBuilder stringBuilder = new StringBuilder();
+            String s = dataParts[0];
+            stringBuilder.append(s.replace("$", ""));
+            for (int i = 1; i < dataParts.length - 1; i++) {
+                stringBuilder.append(dataParts[i]);
+            }
+            int calcCheckSum = calcCheckSum(stringBuilder.toString());
+
+            int receivedCheckSum = hexadecimalToDecimal(dataParts[dataParts.length - 1]);
+
+            if (receivedCheckSum != calcCheckSum) {
+                return;
+            }
+        } else {
+            return;
+        }
+
+
         String type = dataParts[0].substring(3, 6);
 
         switch (type) {
@@ -81,69 +105,38 @@ public class NMEAParser implements Runnable {
                 mReceiveInfo = new NMEAInfo();
 
                 String time = dataParts[1];
-                if (!time.matches(REGEX_FOR_DOUBLE)) {
-                    time = "000000.00";
+                if (time.matches(REGEX_FOR_TIME)) {
+                    mReceiveInfo.mTime = time;
+                } else {
+                    mReceiveInfo.mTime = "000000.00";
                 }
-
                 String lat = dataParts[2];
-                double thisLatitude = 0;
                 if (lat.matches(REGEX_FOR_DOUBLE)) {
                     String latDegree = lat.substring(0, 2);
                     String latMinutes = lat.substring(2);
                     double latDegDouble = Double.parseDouble(latDegree);
                     double latMinDouble = Double.parseDouble(latMinutes);
-                    thisLatitude = Math.min(latDegDouble + latMinDouble / 60, 90.0d);
+                    mReceiveInfo.mLatitude = Math.min(latDegDouble + latMinDouble / 60, 90.0d);
                 }
 
                 String lon = dataParts[4];
-                double thisLongitude = 0;
                 if (lon.matches(REGEX_FOR_DOUBLE)) {
                     String longDegree = lon.substring(0, 3);
                     String longMinutes = lon.substring(3);
                     double longDegDouble = Double.parseDouble(longDegree);
                     double longMinDouble = Double.parseDouble(longMinutes);
 
-                    thisLongitude = Math.min(longDegDouble + longMinDouble / 60, 360.0d);
+                    mReceiveInfo.mLongitude = Math.min(longDegDouble + longMinDouble / 60, 360.0d);
                 }
 
                 String qual = dataParts[6];
-                int thisQual = 0;
                 if (qual.matches("[0-2]")) {
-                    thisQual = Integer.parseInt(qual);
+                    mReceiveInfo.mQuality = Integer.parseInt(qual);
                 }
 
                 String high = dataParts[9];
-                double thisHigh = 0;
                 if (high.matches(REGEX_FOR_DOUBLE)) {
-                    thisHigh = Double.parseDouble(high);
-                }
-
-
-                //Check checksum
-                if (dataParts[dataParts.length - 1].matches(REGEX_FOR_HEX)) {
-
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append(dataParts[0].substring(1));
-                    for (int i = 1; i < dataParts.length - 1; i++) {
-                        stringBuilder.append(dataParts[i]);
-                    }
-                    int calcCheckSum = calcCheckSum(stringBuilder.toString());
-
-                    int receivedCheckSum = hexadecimalToDecimal(dataParts[dataParts.length - 1]);
-
-                    if (receivedCheckSum == calcCheckSum) {
-                        mReceiveInfo.mTime = time;
-                        mReceiveInfo.mLongitude = thisLongitude;
-                        mReceiveInfo.mLatitude = thisLatitude;
-                        mReceiveInfo.mQuality = thisQual;
-                        mReceiveInfo.mHeight = thisHigh;
-                    } else {
-                        mReceiveInfo = null;
-                        return;
-                    }
-                } else {
-                    mReceiveInfo = null;
-                    return;
+                    mReceiveInfo.mHeight = Double.parseDouble(high);
                 }
 
             }
@@ -186,7 +179,7 @@ public class NMEAParser implements Runnable {
                         } else if (dataParts[0].contains("BD")) {
                             mCurrentSat = new BeidouSat();
                         } else {
-                            //System.out.println("Satellite of type: " + dataParts[0].substring(1,3) + " cannot be processed by this program!");
+                            System.out.println("Satellite of type: " + dataParts[0].substring(1, 3) + " cannot be processed by this program!");
                             return;
                         }
                         mCurrentSat.mParentNMEAInfo = mReceiveInfo;
@@ -218,7 +211,7 @@ public class NMEAParser implements Runnable {
                 }
             }
             default:
-                // System.out.println("no fitting data type could be found for: " + type);
+                System.out.println("no fitting data type could be found for: " + type);
                 break;
         }
     }

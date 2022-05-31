@@ -105,16 +105,17 @@ public class SatView implements PositionUpdateListener {
             if (_observableValue instanceof ReadOnlyDoubleProperty) {
                 ReadOnlyDoubleProperty dProp = (ReadOnlyDoubleProperty) _observableValue;
                 double val = dProp.doubleValue();
+                double halfVal = val/2;
                 String name = dProp.getName();
 
-                double smallerSide = Math.min(mSatView.getWidth(), mSatView.getHeight());
-                double offset = smallerSide / 14;
-                double cWidth = mSatView.getWidth() - offset * 2;
-                double cHeight = mSatView.getHeight() - offset * 2;
-                double cCenterX = mSatView.getWidth() / 2;
-                double cCenterY = mSatView.getHeight() / 2;
-                smallerSide = Math.min(cWidth, cHeight);
                 if (name.equalsIgnoreCase("width")) {
+                    double smallerSide = Math.min(val, mSatView.getHeight());
+                    double offset = smallerSide / 14;
+                    double cWidth = halfVal - offset * 2;
+                    double cHeight = mSatView.getHeight() - offset * 2;
+                    double cCenterX = halfVal / 2;
+                    double cCenterY = mSatView.getHeight() / 2;
+                    smallerSide = Math.min(cWidth, cHeight);
                     AnchorPane.setRightAnchor(mSatView, val / 2);
 
                     Line vertLine = (Line) mSatView.lookup("#VerticalLine");
@@ -137,6 +138,7 @@ public class SatView implements PositionUpdateListener {
                     Circle outerCircle = (Circle) mSatView.lookup("#OuterCircle");
                     if (outerCircle != null) {
                         outerCircle.setCenterX(cCenterX);
+                        outerCircle.setCenterY(cCenterY);
                         outerCircle.setRadius(smallerSide / 2);
                     }
 
@@ -144,12 +146,20 @@ public class SatView implements PositionUpdateListener {
                     Circle innerCircle = (Circle) mSatView.lookup("#InnerCircle");
                     if (innerCircle != null) {
                         innerCircle.setCenterX(cCenterX);
+                        innerCircle.setCenterY(cCenterY);
                         double radius = Math.cos(45 * (Math.PI / 180d)) * (smallerSide / 2);
                         innerCircle.setRadius(radius);
                     }
 
 
                 } else if (name.equalsIgnoreCase("height")) {
+                    double smallerSide = Math.min(mSatView.getWidth(), val);
+                    double offset = smallerSide / 14;
+                    double cWidth = mSatView.getWidth() - offset * 2;
+                    double cHeight = val - offset * 2;
+                    double cCenterX = mSatView.getWidth() / 2;
+                    double cCenterY = val / 2;
+                    smallerSide = Math.min(cWidth, cHeight);
 
                     Line vertLine = (Line) mSatView.lookup("#VerticalLine");
                     if (vertLine != null) {
@@ -171,12 +181,14 @@ public class SatView implements PositionUpdateListener {
                     Circle outerCircle = (Circle) mSatView.lookup("#OuterCircle");
                     if (outerCircle != null) {
                         outerCircle.setCenterY(cCenterY);
+                        outerCircle.setCenterX(cCenterX);
                         outerCircle.setRadius(smallerSide / 2);
                     }
 
                     //inner circle
                     Circle innerCircle = (Circle) mSatView.lookup("#InnerCircle");
                     if (innerCircle != null) {
+                        innerCircle.setCenterX(cCenterX);
                         innerCircle.setCenterY(cCenterY);
                         double radius = Math.cos(45 * (Math.PI / 180d)) * (smallerSide / 2);
                         innerCircle.setRadius(radius);
