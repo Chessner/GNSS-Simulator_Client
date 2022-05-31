@@ -9,42 +9,42 @@ public class NMEAParser implements Runnable {
     private GNSSSimulator mSimulator;
     private NMEAInfo mDisplayInfo, mReceiveInfo;
     private SatelliteInfo mCurrentSat;
-    private ArrayList<PositionUpdateListener> mPositionUpdateListeners = new ArrayList<>();
+    private final ArrayList<PositionUpdateListener> mPositionUpdateListeners = new ArrayList<>();
+    private final String REGEX_FOR_DOUBLE = "[0-9]+\\.[0-9]+";
+    private final String REGEX_FOR_INTEGER = "-?[0-9]+";
+    private final String REGEX_FOR_HEX = "[0-9,A-F][0-9,A-F]";
 
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-4--Fehlerhaft.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
     }
 
-    // Method
-    // To convert hexadecimal to decimal
-    static int hexadecimalToDecimal(String hexVal) {
+    // Method to convert hexadecimal to decimal
+    static int hexadecimalToDecimal(String _hexVal) {
         // Storing the length of the
-        int len = hexVal.length();
+        int len = _hexVal.length();
 
         // Initializing base value to 1, i.e 16^0
         int base = 1;
 
-        // Initially declaring and initializing
-        // decimal value to zero
-        int dec_val = 0;
+        // Initially declaring and initializing decimal value to zero
+        int decVal = 0;
 
-        // Extracting characters as
-        // digits from last character
+        // Extracting characters as digits from last character
         for (int i = len - 1; i >= 0; i--) {
 
-            if (hexVal.charAt(i) >= '0'
-                    && hexVal.charAt(i) <= '9') {
-                dec_val += (hexVal.charAt(i) - 48) * base;
+            if (_hexVal.charAt(i) >= '0'
+                    && _hexVal.charAt(i) <= '9') {
+                decVal += (_hexVal.charAt(i) - 48) * base;
 
                 // Incrementing base by power
                 base = base * 16;
-            } else if (hexVal.charAt(i) >= 'A'
-                    && hexVal.charAt(i) <= 'F') {
-                dec_val += (hexVal.charAt(i) - 55) * base;
+            } else if (_hexVal.charAt(i) >= 'A'
+                    && _hexVal.charAt(i) <= 'F') {
+                decVal += (_hexVal.charAt(i) - 55) * base;
 
                 // Incrementing base by power
                 base = base * 16;
@@ -52,10 +52,10 @@ public class NMEAParser implements Runnable {
         }
 
         // Returning the decimal value
-        return dec_val;
+        return decVal;
     }
 
-    private int calcCheckSum(String _data){
+    private int calcCheckSum(String _data) {
         char[] cArr = _data.toCharArray();
         int calcCheckSum = 0;
         for (char c : cArr) {
@@ -73,19 +73,21 @@ public class NMEAParser implements Runnable {
             case "GGA": {
                 if (dataParts.length < 16) return; //14 data fields + sentence type + checksum
 
-                if (mReceiveInfo != null) mDisplayInfo = mReceiveInfo;
-                updatePositionUpdateListeners();
+                if (mReceiveInfo != null) {
+                    mDisplayInfo = mReceiveInfo;
+                    updatePositionUpdateListeners();
+                }
 
                 mReceiveInfo = new NMEAInfo();
 
                 String time = dataParts[1];
-                if (!time.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                if (!time.matches(REGEX_FOR_DOUBLE)) {
                     time = "000000.00";
                 }
 
                 String lat = dataParts[2];
-                double thisLatitude = (double) 0;
-                if (lat.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                double thisLatitude = 0;
+                if (lat.matches(REGEX_FOR_DOUBLE)) {
                     String latDegree = lat.substring(0, 2);
                     String latMinutes = lat.substring(2);
                     double latDegDouble = Double.parseDouble(latDegree);
@@ -94,8 +96,8 @@ public class NMEAParser implements Runnable {
                 }
 
                 String lon = dataParts[4];
-                double thisLongitude = (double) 0;
-                if (lon.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                double thisLongitude = 0;
+                if (lon.matches(REGEX_FOR_DOUBLE)) {
                     String longDegree = lon.substring(0, 3);
                     String longMinutes = lon.substring(3);
                     double longDegDouble = Double.parseDouble(longDegree);
@@ -112,13 +114,13 @@ public class NMEAParser implements Runnable {
 
                 String high = dataParts[9];
                 double thisHigh = 0;
-                if (high.matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                if (high.matches(REGEX_FOR_DOUBLE)) {
                     thisHigh = Double.parseDouble(high);
                 }
 
 
                 //Check checksum
-                if (dataParts[dataParts.length - 1].matches("[0-9,A-F][0-9,A-F]")) {
+                if (dataParts[dataParts.length - 1].matches(REGEX_FOR_HEX)) {
 
                     StringBuilder stringBuilder = new StringBuilder();
                     stringBuilder.append(dataParts[0].substring(1));
@@ -158,13 +160,13 @@ public class NMEAParser implements Runnable {
                     mReceiveInfo.mIDsSatellitesUsed.add(id);
                 }
 
-                if (dataParts[15].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                if (dataParts[15].matches(REGEX_FOR_DOUBLE)) {
                     mReceiveInfo.mPDOP = Double.parseDouble(dataParts[15]);
                 }
-                if (dataParts[16].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                if (dataParts[16].matches(REGEX_FOR_DOUBLE)) {
                     mReceiveInfo.mHDOP = Double.parseDouble(dataParts[16]);
                 }
-                if (dataParts[17].matches("[0-9][0-9]*\\.[0-9][0-9]*")) {
+                if (dataParts[17].matches(REGEX_FOR_DOUBLE)) {
                     mReceiveInfo.mVDOP = Double.parseDouble(dataParts[17]);
                 }
             }
@@ -189,22 +191,22 @@ public class NMEAParser implements Runnable {
                         }
                         mCurrentSat.mParentNMEAInfo = mReceiveInfo;
 
-                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                        if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
                             mCurrentSat.mID = Integer.parseInt(dataParts[i]);
                         }
                     } else if (j % 5 == 0) {
                         //mAngleToHorizontal
-                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                        if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
                             mCurrentSat.mAngleToHorizontal = Integer.parseInt(dataParts[i]);
                         }
                     } else if (j % 6 == 0) {
                         //mAngleToNorth
-                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                        if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
                             mCurrentSat.mAngleToNorth = Integer.parseInt(dataParts[i]);
                         }
                     } else {
                         //SNR
-                        if (dataParts[i].matches("[0-9][0-9]*")) {
+                        if (dataParts[i].matches(REGEX_FOR_INTEGER)) {
                             mCurrentSat.mSNRdB = Integer.parseInt(dataParts[i]);
                         } else {
                             //no snr -> mark with Integer.MIN_VALUE
