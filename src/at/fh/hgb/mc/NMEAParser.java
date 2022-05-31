@@ -48,7 +48,7 @@ public class NMEAParser implements Runnable {
      */
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-4--Fehlerhaft.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
@@ -56,6 +56,7 @@ public class NMEAParser implements Runnable {
 
     /**
      * Method to convert hexadecimal to decimal
+     *
      * @param _hexVal String of hex value.
      * @return Integer decimal value.
      */
@@ -90,6 +91,7 @@ public class NMEAParser implements Runnable {
 
     /**
      * This method calculates the bitwise checksum of the given String.
+     *
      * @param _data String of which the checksum should be calculated.
      * @return Calculated checksum. 0 if _data is empty.
      */
@@ -104,6 +106,7 @@ public class NMEAParser implements Runnable {
 
     /**
      * Parse method extracting various types of information from a given line.
+     *
      * @param _data Line to be parsed.
      */
     public void parse(String _data) {
@@ -117,13 +120,20 @@ public class NMEAParser implements Runnable {
             String s = dataParts[0];
             stringBuilder.append(s.replace("$", ""));
             for (int i = 1; i < dataParts.length - 1; i++) {
-                stringBuilder.append(dataParts[i]);
+                stringBuilder.append(dataParts[i]).append(",");
             }
             int calcCheckSum = calcCheckSum(stringBuilder.toString());
 
             int receivedCheckSum = hexadecimalToDecimal(dataParts[dataParts.length - 1]);
 
             if (receivedCheckSum != calcCheckSum) {
+                if (dataParts[0].contains("GGA")) {
+                    if (mReceiveInfo != null) {
+                        mDisplayInfo = mReceiveInfo;
+                        updatePositionUpdateListeners();
+                    }
+                    mReceiveInfo = null;
+                }
                 return;
             }
         } else {
@@ -156,7 +166,7 @@ public class NMEAParser implements Runnable {
                     String latMinutes = lat.substring(2);
                     double latDegDouble = Double.parseDouble(latDegree);
                     double latMinDouble = Double.parseDouble(latMinutes);
-                    mReceiveInfo.mLatitude = Math.min(latDegDouble + latMinDouble / 60, 90.0d);
+                    mReceiveInfo.mLatitude = latDegDouble + latMinDouble / 60;
                 }
 
                 String lon = dataParts[4];
@@ -166,7 +176,7 @@ public class NMEAParser implements Runnable {
                     double longDegDouble = Double.parseDouble(longDegree);
                     double longMinDouble = Double.parseDouble(longMinutes);
 
-                    mReceiveInfo.mLongitude = Math.min(longDegDouble + longMinDouble / 60, 360.0d);
+                    mReceiveInfo.mLongitude = longDegDouble + longMinDouble / 60;
                 }
 
                 String qual = dataParts[6];
@@ -281,6 +291,7 @@ public class NMEAParser implements Runnable {
 
     /**
      * This method can be used by other objects to attach a PositionUpdateListener to this parser.
+     *
      * @param _listener Listener to be attached.
      */
     public void addPositionUpdateListener(PositionUpdateListener _listener) {
