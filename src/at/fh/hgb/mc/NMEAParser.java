@@ -5,32 +5,65 @@ import javafx.application.Platform;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * This class is used to parse NMEA data from lines, constructing NMEAInfo and SatelliteInfo objects in the process.
+ * It also implements the Runnable interface, in order to be used in an extra Thread.
+ */
 public class NMEAParser implements Runnable {
+    /**
+     * Reference to the simulator providing the lines for parsing.
+     */
     private GNSSSimulator mSimulator;
+    /**
+     * NMEAInfo objects that are either used for displaying the parsed data or receiving data.
+     */
     private NMEAInfo mDisplayInfo, mReceiveInfo;
+    /**
+     * Reference to the current satellite being parsed.
+     */
     private SatelliteInfo mCurrentSat;
+    /**
+     * List containing the references to the various PositionUpdateListeners listening for new NMEAInfo objects.
+     */
     private final ArrayList<PositionUpdateListener> mPositionUpdateListeners = new ArrayList<>();
-    private final String REGEX_FOR_DOUBLE = "[0-9]+\\.[0-9]+";
+    /**
+     * Regex for checking if a String is a String representation of a double value.
+     */
+    private final String REGEX_FOR_DOUBLE = "-?[0-9]+\\.[0-9]+";
+    /**
+     * Regex for checking if a String is a String representation of a double value representing time (time format: 000000.000).
+     */
     private final String REGEX_FOR_TIME = "[0-9]{6,6}.[0-9]{2,2}";
+    /**
+     * Regex for checking if a String is a String representation of an integer value.
+     */
     private final String REGEX_FOR_INTEGER = "-?[0-9]+";
+    /**
+     * Regex for checking if a String is a String representation of a Hex value. (Limited to 2 characters)
+     */
     private final String REGEX_FOR_HEX = "[0-9,A-F][0-9,A-F]";
 
+    /**
+     * Constructs a new NMEAParser.
+     */
     public NMEAParser() {
         try {
-            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-4--Fehlerhaft.nmea", 1000, "GGA");
+            mSimulator = new GNSSSimulator("GPS-Logs/NMEA-data-3--Materl-Position-Statisch.nmea", 1000, "GGA");
         } catch (IOException _e) {
             _e.printStackTrace();
         }
     }
 
-    // Method to convert hexadecimal to decimal
+    /**
+     * Method to convert hexadecimal to decimal
+     * @param _hexVal String of hex value.
+     * @return Integer decimal value.
+     */
     static int hexadecimalToDecimal(String _hexVal) {
-        // Storing the length of the
         int len = _hexVal.length();
 
         // Initializing base value to 1, i.e 16^0
         int base = 1;
-
         // Initially declaring and initializing decimal value to zero
         int decVal = 0;
 
@@ -51,11 +84,15 @@ public class NMEAParser implements Runnable {
                 base = base * 16;
             }
         }
-
         // Returning the decimal value
         return decVal;
     }
 
+    /**
+     * This method calculates the bitwise checksum of the given String.
+     * @param _data String of which the checksum should be calculated.
+     * @return Calculated checksum. 0 if _data is empty.
+     */
     private int calcCheckSum(String _data) {
         char[] cArr = _data.toCharArray();
         int calcCheckSum = 0;
@@ -65,7 +102,10 @@ public class NMEAParser implements Runnable {
         return calcCheckSum;
     }
 
-
+    /**
+     * Parse method extracting various types of information from a given line.
+     * @param _data Line to be parsed.
+     */
     public void parse(String _data) {
         String[] dataParts = _data.split(",|\\*");
 
@@ -239,10 +279,17 @@ public class NMEAParser implements Runnable {
         }
     }
 
+    /**
+     * This method can be used by other objects to attach a PositionUpdateListener to this parser.
+     * @param _listener Listener to be attached.
+     */
     public void addPositionUpdateListener(PositionUpdateListener _listener) {
         mPositionUpdateListeners.add(_listener);
     }
 
+    /**
+     * This method is called to update all PositionUpdateListeners.
+     */
     private void updatePositionUpdateListeners() {
         Platform.runLater(() -> {
             for (PositionUpdateListener l : mPositionUpdateListeners) {
