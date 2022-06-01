@@ -7,6 +7,7 @@ import javafx.scene.text.Text;
 
 import java.awt.geom.Point2D;
 
+
 /**
  * This class extends SatelliteInfo to provide implementation for a Beidou satellite.
  */

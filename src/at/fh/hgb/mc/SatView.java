@@ -1,5 +1,6 @@
 package at.fh.hgb.mc;
 
+
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

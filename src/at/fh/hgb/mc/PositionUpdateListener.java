@@ -1,5 +1,6 @@
 package at.fh.hgb.mc;
 
+
 /**
  * A class can implement this interface to listen for changes in the observed object.
  */

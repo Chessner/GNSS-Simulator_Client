@@ -1,7 +1,6 @@
 package at.fh.hgb.mc;
 
 import javafx.scene.layout.Pane;
-
 import java.awt.geom.Point2D;
 
 /**
