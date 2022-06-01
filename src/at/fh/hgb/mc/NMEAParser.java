@@ -127,13 +127,6 @@ public class NMEAParser implements Runnable {
             int receivedCheckSum = hexadecimalToDecimal(dataParts[dataParts.length - 1]);
 
             if (receivedCheckSum != calcCheckSum) {
-                if (dataParts[0].contains("GGA")) {
-                    if (mReceiveInfo != null) {
-                        mDisplayInfo = mReceiveInfo;
-                        updatePositionUpdateListeners();
-                    }
-                    mReceiveInfo = null;
-                }
                 return;
             }
         } else {
